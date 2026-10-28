@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="预言家日报 —— 哈利波特魔法报纸风格的每日新闻，魔法世界即 AI 世界">
+<title>预言家日报 · The Daily Prophet</title>
+<style>
+  :root {
+    --ink: #3b2a1a; --ink-light: #6b5138; --accent: #7a1f1f; --gold: #8a6d1d;
+    --paper: #ece0c4; --paper-dark: #e2d3af;
+    --serif: "Noto Serif SC", "Source Han Serif SC", "STSong", "SimSun", Georgia, serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--serif); color: var(--ink);
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(122,31,31,.06), transparent 55%),
+      radial-gradient(ellipse at 80% 100%, rgba(138,109,29,.08), transparent 55%),
+      linear-gradient(180deg, #1a120a 0%, #241809 100%);
+    min-height: 100vh; padding: 28px 12px 60px;
+  }
+  .sheet {
+    max-width: 1080px; margin: 0 auto;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 26px, rgba(107,81,56,.035) 27px),
+      radial-gradient(ellipse at 15% 10%, rgba(122,31,31,.05), transparent 45%),
+      radial-gradient(ellipse at 85% 90%, rgba(138,109,29,.06), transparent 45%),
+      linear-gradient(160deg, var(--paper) 0%, var(--paper-dark) 55%, #d9c69c 100%);
+    box-shadow: 0 30px 80px rgba(0,0,0,.65), inset 0 0 120px rgba(120,85,40,.22);
+    border: 1px solid #c9b483; padding: 40px 48px 56px; position: relative;
+    animation: unfold .8s ease-out;
+  }
+  @keyframes unfold { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  .sheet::before {
+    content: ""; position: absolute; inset: 10px;
+    border: 2px solid rgba(122,31,31,.35);
+    outline: 1px solid rgba(138,109,29,.4); outline-offset: 4px; pointer-events: none;
+  }
+  .masthead { text-align: center; border-bottom: 3px double var(--ink); padding-bottom: 14px; position: relative; }
+  .masthead .crest { font-size: 15px; letter-spacing: .5em; color: var(--gold); margin-bottom: 6px; }
+  h1.title {
+    font-size: clamp(44px, 8vw, 76px); letter-spacing: .18em; font-weight: 900;
+    text-shadow: 1px 1px 0 rgba(255,250,230,.6), 3px 3px 6px rgba(59,42,26,.25);
+  }
+  .masthead .en { font-size: 14px; letter-spacing: .55em; color: var(--accent); margin-top: 4px; text-transform: uppercase; }
+  .dateline {
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;
+    border-bottom: 1px solid var(--ink-light); padding: 8px 2px; font-size: 13px;
+    color: var(--ink-light); letter-spacing: .08em;
+  }
+  .dateline .price::before { content: "☽ "; color: var(--gold); }
+  .hero { text-align: center; padding: 26px 0 10px; border-bottom: 2px solid var(--ink); margin-bottom: 22px; }
+  .photo {
+    position: relative; display: inline-block; overflow: hidden;
+    background: linear-gradient(160deg, #d8c8a0, #c3ad7e);
+    border: 3px solid var(--ink); box-shadow: 4px 4px 0 rgba(59,42,26,.35);
+  }
+  .photo img { display: block; width: 100%; height: 100%; object-fit: cover; filter: sepia(.35) contrast(1.02); animation: kenburns 14s ease-in-out infinite alternate; }
+  .photo.small img, .photo.tiny img { animation: kenburns2 9s ease-in-out infinite alternate; }
+  .column-block:nth-child(odd) .photo img { animation-name: kenburns3; animation-duration: 11s; }
+  .photo::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,246,214,.28) 48%, transparent 62%);
+    background-size: 260% 100%; animation: shimmer 5.5s ease-in-out infinite;
+  }
+  .photo.moving { width: min(560px, 92%); aspect-ratio: 16/9; }
+  .photo.small { width: 100%; aspect-ratio: 16/9; margin-bottom: 8px; }
+  .photo.tiny { width: 100%; aspect-ratio: 21/9; margin-bottom: 8px; border-width: 2px; }
+  @keyframes kenburns { from { transform: scale(1) translate(0,0); } to { transform: scale(1.12) translate(-2%, 2%); } }
+  @keyframes kenburns2 { from { transform: scale(1.08) translate(2%, -1%); } to { transform: scale(1) translate(0, 0); } }
+  @keyframes kenburns3 { from { transform: scale(1.05) translate(-1%, 1%); } to { transform: scale(1) translate(1%, -1%); } }
+  @keyframes shimmer { 0%, 100% { background-position: 120% 0; } 50% { background-position: -20% 0; } }
+  .headline { font-size: clamp(26px, 4.5vw, 40px); font-weight: 900; margin: 18px auto 10px; line-height: 1.35; letter-spacing: .04em; }
+  .headline a { color: var(--ink); text-decoration: none; }
+  .headline a:hover { color: var(--accent); text-decoration: underline; }
+  .lede { max-width: 640px; margin: 0 auto; color: var(--ink-light); font-size: 15px; line-height: 1.9; text-align: justify; }
+  .lede::first-letter { font-size: 2em; color: var(--accent); font-weight: 900; }
+  .front-page { display: grid; grid-template-columns: 1.4fr 1fr; gap: 30px; }
+  @media (max-width: 760px) { .front-page { grid-template-columns: 1fr; } }
+  .column-block h2.column-title {
+    font-size: 20px; font-weight: 900; letter-spacing: .3em; text-align: center;
+    color: var(--accent); border-bottom: 2px solid var(--ink); padding-bottom: 8px; margin-bottom: 4px;
+  }
+  .front-col h2.column-title { font-size: 22px; }
+  .column-sub { text-align: center; font-size: 11px; color: var(--ink-light); letter-spacing: .2em; margin-bottom: 14px; }
+  .stamp {
+    display: inline-block; font-size: 10.5px; color: var(--accent);
+    border: 1px solid rgba(122,31,31,.4); padding: 1px 7px; margin: 2px 0 6px;
+    letter-spacing: .1em; border-radius: 2px; background: rgba(122,31,31,.05);
+  }
+  .story { margin-bottom: 20px; break-inside: avoid; }
+  .story h3 { font-size: 17px; line-height: 1.5; margin-bottom: 6px; }
+  .story h3 a { color: var(--ink); text-decoration: none; }
+  .story h3 a:hover { color: var(--accent); text-decoration: underline; }
+  .story p { font-size: 13.5px; line-height: 1.85; color: var(--ink-light); text-align: justify; }
+  .footer {
+    margin-top: 34px; padding-top: 16px; border-top: 3px double var(--ink);
+    text-align: center; font-size: 12px; color: var(--ink-light); letter-spacing: .15em; line-height: 2;
+  }
+  .footer .owl::before { content: "🦉 "; }
+  .empty { text-align: center; padding: 60px 0; color: var(--ink-light); }
+  .candle { position: fixed; top: -60px; font-size: 22px; z-index: 5; animation: floatdown linear infinite; opacity: .9; pointer-events: none; }
+  @keyframes floatdown {
+    0% { transform: translateY(-60px) translateX(0) rotate(-4deg); }
+    50% { transform: translateY(50vh) translateX(14px) rotate(4deg); }
+    100% { transform: translateY(110vh) translateX(-8px) rotate(-3deg); }
+  }
+</style>
+</head>
+<body>
+  <div class="candle" style="left:6%; animation-duration:16s;">🕯️</div>
+  <div class="candle" style="left:88%; animation-duration:21s; animation-delay:5s;">🕯️</div>
+  <div class="candle" style="left:46%; animation-duration:26s; animation-delay:11s;">🕯️</div>
+
+  <main class="sheet">
+    <header class="masthead">
+      <div class="crest">✦ 猫头鹰邮政特许发行 · 麻瓜亦可订阅 ✦</div>
+      <h1 class="title">预言家日报</h1>
+      <div class="en">The Daily Prophet</div>
+    </header>
+    <div class="dateline">
+      <span class="price">每份 5 个加隆（麻瓜免费）</span>
+      <span>2026年10月28日 星期三 · 🌘 残月 · 天蝎座宜占卜 · 霍格沃茨：晴 · 禁林边缘有薄雾</span>
+      <span>第 36 卷 · 霍格莫德印刷</span>
+    </div>
+
+    <div class="hero">
+    <div class="hero">
+      <div class="photo moving"><img src="https://images.weserv.nl/?url=static.leiphone.com%2Fuploads%2Fnew%2Fimages%2F20261028%2F6ae1aada05a25.jpg%3FimageMogr2%2Fquality%2F90&w=900&output=jpg&q=82" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.closest('.photo').style.display='none'"></div>
+      <h2 class="headline"><a href="https://www.leiphone.com/category/private/L0riZpWS688dpXnN.html" target="_blank" rel="noopener">模态缺失、噪声干扰怎么办？天津大学张长青：给多模态融合加上「可信度量尺」| CNCC 2026</a></h2>
+      <p class="lede">真正的挑战，是让模型保留有效信息、识别可靠证据，并适应新的任务。 作者丨 张 璐 编辑丨 马晓宁 在具身智能、自动驾驶和智慧医疗等场景中，模型需要处理的数据远不止图像、文本和语音。雷达、触觉、心电、医学影像及各类传感器数据，都可能成为预测和</p>
+    </div></div>
+         <div class="front-page">
+           <section class="column-block front-col">
+             <h2 class="column-title">魔法世界头条</h2>
+             <p class="column-sub">—— 机器之心 · 量子位 · 雷峰网 特约供稿 ——</p>
+             
+    <article class="story">
+      
+      <h3><a href="https://www.qbitai.com/2026/10/505928.html" target="_blank" rel="noopener">Personal Agent走向真实任务，蚂蚁百灵开源 Ling-3.1-flash-1019</a></h3>
+      
+      <p>10月28 日，蚂蚁集团旗下百灵大模型正式开源 Ling-3.1-flash-1019。</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://www.qbitai.com/2026/10/505865.html" target="_blank" rel="noopener">不藏了！人形机器人全开源动真格，从机械结构一路拆到运动算法</a></h3>
+      
+      <p>人形机器人全套图纸开源！从关节到算法，下载就能自己造。</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://www.qbitai.com/2026/10/505852.html" target="_blank" rel="noopener">印奇把4D雷达也端到端了</a></h3>
+      
+      <p>毫米波雷达，AI算力10TOPS</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://www.qbitai.com/2026/10/505830.html" target="_blank" rel="noopener">乔布斯的皮克斯，狂赞中国物理AI数据终端</a></h3>
+      
+      <p>顶尖智能汽车玩家的终局，不会停在智能汽车</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://www.qbitai.com/2026/10/505799.html" target="_blank" rel="noopener">Physical RSI第一站！便利店打工“人”自己进化，物理AI飞轮启动了</a></h3>
+      
+      <p>无人在环进店实测啃下长尾场景</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://www.qbitai.com/2026/10/505773.html" target="_blank" rel="noopener">KV Cache被压成常数！OCR开源新王：页数没上限，缓存砍96%</a></h3>
+      
+      <p>OCR 3.0时代，来了</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://www.qbitai.com/2026/10/505719.html" target="_blank" rel="noopener">GPT-6.1 Terra首批网友实测来了！1折价格获得Astra级电脑操作能力</a></h3>
+      
+      <p>同一天，OpenAI还甩出3项AI科学新发现</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://www.qbitai.com/2026/10/505694.html" target="_blank" rel="noopener">国产AI 3D大模型Hi3D来了！开源可商用，PK干掉GPT-6</a></h3>
+      
+      <p>还是专业的模型做专业的事情</p>
+    </article>
+           </section>
+           <div>
+    <section class="column-block">
+      <h2 class="column-title">麻瓜世界要闻</h2>
+      <p class="column-sub">—— 澎湃新闻 特约供稿 ——</p>
+      
+    <article class="story">
+      <div class="photo tiny"><img src="https://images.weserv.nl/?url=imgpai.thepaper.cn%2Fnewpai%2Fimage%2F1793102553808_3MMZS4_1793102554003.png&w=900&output=jpg&q=82" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.closest('.photo').style.display='none'"></div>
+      <h3><a href="https://www.thepaper.cn/newsDetail_forward_34344268" target="_blank" rel="noopener">姆巴佩：我向所有被我的言论所伤害的人道歉</a></h3>
+      <span class="stamp">22小时前 · 猫头鹰送达</span>
+      
+    </article>
+    <article class="story">
+      <div class="photo tiny"><img src="https://images.weserv.nl/?url=imgpai.thepaper.cn%2Fnewpai%2Fimage%2F1793103184613_nzzZZd_1793103184709.png&w=900&output=jpg&q=82" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.closest('.photo').style.display='none'"></div>
+      <h3><a href="https://www.thepaper.cn/newsDetail_forward_34344391" target="_blank" rel="noopener">中国足协回应姆巴佩涉华错误言论：要求涉事球员和皇马俱乐部公开正式道歉</a></h3>
+      <span class="stamp">22小时前 · 猫头鹰送达</span>
+      
+    </article>
+    <article class="story">
+      <div class="photo tiny"><img src="https://images.weserv.nl/?url=imgpai.thepaper.cn%2Fnewpai%2Fimage%2F1793107469159_D72GE8_1793107469466.png&w=900&output=jpg&q=82" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.closest('.photo').style.display='none'"></div>
+      <h3><a href="https://www.thepaper.cn/newsDetail_forward_34345003" target="_blank" rel="noopener">言短意长｜不能总让易中天辟谣“易中天患上阿尔茨海默病”</a></h3>
+      <span class="stamp">20小时前 · 猫头鹰送达</span>
+      
+    </article>
+    <article class="story">
+      <div class="photo tiny"><img src="https://images.weserv.nl/?url=imgpai.thepaper.cn%2Fnewpai%2Fimage%2F1793094646385_hrKMpx_1793094646568.png&w=900&output=jpg&q=82" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.closest('.photo').style.display='none'"></div>
+      <h3><a href="https://www.thepaper.cn/newsDetail_forward_34343488" target="_blank" rel="noopener">“小天才”手表争议背后：如何为被“圈住”的童年解绑</a></h3>
+      <span class="stamp">23小时前 · 猫头鹰送达</span>
+      
+    </article>
+    <article class="story">
+      <div class="photo tiny"><img src="https://images.weserv.nl/?url=imgpai.thepaper.cn%2Fnewpai%2Fimage%2F1793112480914_Rn7BQf_1793112480915.png&w=900&output=jpg&q=82" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.closest('.photo').style.display='none'"></div>
+      <h3><a href="https://www.thepaper.cn/newsDetail_forward_34309375" target="_blank" rel="noopener">2026胡润百富榜出炉，每10位上榜者就有1位靠AI</a></h3>
+      <span class="stamp">19小时前 · 猫头鹰送达</span>
+      
+    </article>
+    <article class="story">
+      <div class="photo tiny"><img src="https://images.weserv.nl/?url=imgpai.thepaper.cn%2Fnewpai%2Fimage%2F1793106713349_AitGxD_1793106713544.png&w=900&output=jpg&q=82" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.closest('.photo').style.display='none'"></div>
+      <h3><a href="https://www.thepaper.cn/newsDetail_forward_34344764" target="_blank" rel="noopener">见微知沪丨拒绝校门口二手烟，专项巡查之外更要落到日常</a></h3>
+      <span class="stamp">20小时前 · 猫头鹰送达</span>
+      
+    </article>
+    </section>
+    <section class="column-block">
+      <h2 class="column-title">猫头鹰编辑部精选</h2>
+      <p class="column-sub">—— 澎湃·编辑部精选 特约供稿 ——</p>
+      
+    <article class="story">
+      <div class="photo tiny"><img src="https://images.weserv.nl/?url=imgpai.thepaper.cn%2FcoverImage%2F1748926890000_nRCWis_1772781781249.png%3Fx-oss-process%3Dimage%2Fresize%2Cw_332&w=900&output=jpg&q=82" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.closest('.photo').style.display='none'"></div>
+      <h3><a href="https://www.thepaper.cn/newsDetail_forward_34351680" target="_blank" rel="noopener">刘延东同志逝世</a></h3>
+      <span class="stamp">17分钟前 · 猫头鹰送达</span>
+      
+    </article>
+    <article class="story">
+      <div class="photo tiny"><img src="https://images.weserv.nl/?url=imgpai.thepaper.cn%2Fnewpai%2Fimage%2F1793178963387_X2ZXks_1793178963629.png%3Fx-oss-process%3Dimage%2Fresize%2Cw_332&w=900&output=jpg&q=82" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.closest('.photo').style.display='none'"></div>
+      <h3><a href="https://www.thepaper.cn/newsDetail_forward_34351419" target="_blank" rel="noopener">皇马就姆巴佩错误言论道歉</a></h3>
+      <span class="stamp">1小时前 · 猫头鹰送达</span>
+      
+    </article>
+    <article class="story">
+      <div class="photo tiny"><img src="https://images.weserv.nl/?url=imgpai.thepaper.cn%2Fnewpai%2Fimage%2F1793175935977_5yZShr_1793175936286.png%3Fx-oss-process%3Dimage%2Fresize%2Cw_332&w=900&output=jpg&q=82" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.closest('.photo').style.display='none'"></div>
+      <h3><a href="https://www.thepaper.cn/newsDetail_forward_34351024" target="_blank" rel="noopener">特朗普称普京与泽连斯基的会晤将“很快”安排</a></h3>
+      <span class="stamp">1小时前 · 猫头鹰送达</span>
+      
+    </article>
+    <article class="story">
+      <div class="photo tiny"><img src="https://images.weserv.nl/?url=imgpai.thepaper.cn%2Fnewpai%2Fimage%2F1793174820822_wdZeDc_1793174821304.png%3Fx-oss-process%3Dimage%2Fresize%2Cw_332&w=900&output=jpg&q=82" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.closest('.photo').style.display='none'"></div>
+      <h3><a href="https://www.thepaper.cn/newsDetail_forward_34350840" target="_blank" rel="noopener">深一度｜NBA开赛再遇伤病潮，到底谁该为球员的受伤负责？</a></h3>
+      <span class="stamp">1小时前 · 猫头鹰送达</span>
+      
+    </article>
+    <article class="story">
+      <div class="photo tiny"><img src="https://images.weserv.nl/?url=imgpai.thepaper.cn%2Fnewpai%2Fimage%2F1793171530000_WnwBMt_1793172233611.png%3Fx-oss-process%3Dimage%2Fresize%2Cw_332&w=900&output=jpg&q=82" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.closest('.photo').style.display='none'"></div>
+      <h3><a href="https://www.thepaper.cn/newsDetail_forward_34350581" target="_blank" rel="noopener">马上评丨用豆包查方、开药？医生用AI的边界要划清</a></h3>
+      <span class="stamp">1小时前 · 猫头鹰送达</span>
+      
+    </article>
+    <article class="story">
+      <div class="photo tiny"><img src="https://images.weserv.nl/?url=imgpai.thepaper.cn%2Fnewpai%2Fimage%2F1793172483750_HHkjXf_1793172483979.png%3Fx-oss-process%3Dimage%2Fresize%2Cw_332&w=900&output=jpg&q=82" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.closest('.photo').style.display='none'"></div>
+      <h3><a href="https://www.thepaper.cn/newsDetail_forward_34350582" target="_blank" rel="noopener">外交部回应姆巴佩道歉</a></h3>
+      <span class="stamp">2小时前 · 猫头鹰送达</span>
+      
+    </article>
+    </section>
+    <section class="column-block">
+      <h2 class="column-title">古灵阁财经版</h2>
+      <p class="column-sub">—— 华尔街见闻 特约供稿 ——</p>
+      
+    <article class="story">
+      <div class="photo tiny"><img src="https://images.weserv.nl/?url=wpimg-wscn.awtmt.com%2Fa35d8cb9-a920-497c-a388-b4dde4244dd3.png&w=900&output=jpg&q=82" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.closest('.photo').style.display='none'"></div>
+      <h3><a href="https://wallstreetcn.com/articles/3784677" target="_blank" rel="noopener">摩尔线程Q3营收同比增长1773.9%，归母净利润4926万元扭亏为盈 | 财报见闻</a></h3>
+      
+      <p>摩尔线程交出了一份“高增长、刚盈利、重投入”的三季报。 2026年第三季度， 公司实现营业收入15.52亿元，同比增长1773.92%，相当于达到去年同期的18.7倍；归母净利润4926.04万元，同比扭亏为盈 ，扣非归母净利润2007.2</p>
+    </article>
+    <article class="story">
+      <div class="photo tiny"><img src="https://images.weserv.nl/?url=wpimg-wscn.awtmt.com%2F9f95868e-17da-479c-bb10-b3d6cadde0ab.png&w=900&output=jpg&q=82" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.closest('.photo').style.display='none'"></div>
+      <h3><a href="https://wallstreetcn.com/articles/3784676" target="_blank" rel="noopener">今夜美联储“按兵不动”无悬念，市场选择&quot;买入一切&quot;（除了原油）</a></h3>
+      
+      <p>美联储本次会议暂停加息几成定局，但宏观数据的全线超预期正在重新定价12月政策路径，市场在&amp;#34;higher for longer&amp;#34;预期强化下上演了一场罕见的风险资产与避险资产同涨行情——唯有原油逆势下跌，折射出需求端的潜在隐忧。</p>
+    </article>
+    <article class="story">
+      <div class="photo tiny"><img src="https://images.weserv.nl/?url=wpimg-wscn.awtmt.com%2F96f702f5-60fd-4750-a263-fba15db87e79.png&w=900&output=jpg&q=82" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.closest('.photo').style.display='none'"></div>
+      <h3><a href="https://wallstreetcn.com/articles/3784675" target="_blank" rel="noopener">基金三季度规模“座次”揭晓：“调整季”里“攻守易形”（附全部排名）</a></h3>
+      
+      <p>对整个公募基金行业而言，三季度已成为今年的“ 决胜季 ”。 在科技股的回潮中，各只产品、各条业务线、各个客群有怎么样的感受和反应，很大程度上将决定全年的排名。 变化的征兆已经显现。 来自Wind的统计，截至三季度末，基金公司非货基金总规模（</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://wallstreetcn.com/articles/3784673" target="_blank" rel="noopener">以色列大选计票现反转：内塔尼亚胡反超，但组阁仍无定局，阿拉伯政党成关键变量</a></h3>
+      
+      <p>以色列大选计票结果出现戏剧性逆转，现任总理内塔尼亚胡领导的右翼阵营在过半选票统计后反超反对派，但双方均未触及组阁所需的61席门槛，政局走向仍高度不确定。 截至当地时间10月28日凌晨，工作人员已统计超过70%的选票。 内塔尼亚胡阵营预计赢得</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://wallstreetcn.com/articles/3784671" target="_blank" rel="noopener">星宇股份三季度利润大幅缩水，曾因解约107名应届生引争议</a></h3>
+      
+      <p>10月28日，国内车灯龙头星宇股份披露2026年三季报。第三季度实现营业收入36.1亿元，同比下降8.67%；同期归母净利润为2.62亿元，同比下降39.62%。 进入第三季度，星宇股份的业绩下滑明显加速。 今年上半年，星宇股份营收仍保持1</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://wallstreetcn.com/articles/3784670" target="_blank" rel="noopener">沪上阿姨要从“茶咖双轮”走向“茶咖食”，1.3万家门店寻找新增量</a></h3>
+      
+      <p>沪上阿姨开始在茶饮和咖啡之外，寻找第三个品类的增长空间。 10月27日，在2026全球伙伴大会暨品牌年度战略发布会上，沪上阿姨宣布推出“全时茶咖食”战略，将食品正式纳入茶饮和咖啡的经营体系，进一步拓展早餐及其他消费时段。 此前，沪上阿姨一直</p>
+    </article>
+    </section>
+    <section class="column-block">
+      <h2 class="column-title">魔文与符咒快讯</h2>
+      <p class="column-sub">—— IT之家 特约供稿 ——</p>
+      
+    <article class="story">
+      
+      <h3><a href="https://www.ithome.com/1/019/114.htm" target="_blank" rel="noopener">大众推出首款自研全场景 L2++ 级高级驾驶辅助解决方案，支持城市及高速 NOA、全场景泊车辅助</a></h3>
+      
+      <p>IT之家 10 月 28 日消息，在今天举行的首届大众汽车集团（中国）技术日上，大众汽车集团（中国）正式发布一体化技术矩阵“VEGA”，包含整车平台、电子电气架构和高级驾驶辅助系统（ADAS）三大核心技术。 大众认为，高级驾驶辅助系统已成为</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://www.ithome.com/1/019/105.htm" target="_blank" rel="noopener">奇瑞全新捷途自由者 7 将于 11 月 4 日上市，搭载灵犀智舱 TOUR OS</a></h3>
+      
+      <p>IT之家 10 月 28 日消息，据易车报道，全新捷途自由者 7 将于 11 月 4 日正式上市，新车主打轻越野方盒子 SUV 和智能座舱。 IT之家从官方介绍获悉，新车搭载灵犀智舱 TOUR OS，内置 DeepSeek+ 讯飞星火 双加</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://www.ithome.com/1/019/102.htm" target="_blank" rel="noopener">软件定义汽车：大众 CEA 架构计划明年覆盖更多国产插电混动及燃油车、2029 年赋能 L4 自动驾驶开发</a></h3>
+      
+      <p>IT之家 10 月 28 日现场消息，在今天举行的首届大众汽车集团（中国）技术日上，大众汽车集团（中国）正式发布一体化技术矩阵“VEGA”， 包含整车平台、电子电气架构和高级驾驶辅助系统（ADAS）三大核心技术 。 IT之家从技术日活动现场</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://www.ithome.com/1/019/101.htm" target="_blank" rel="noopener">iQOO Pad Pro 小平板现身 Geekbench，今晚发布</a></h3>
+      
+      <p>IT之家 10 月 28 日消息，一款型号为 vivo iPA2693 的神秘新机最近现身 Geekbench 跑分数据库，X 平台博主 Anvin 认为该机是 iQOO Pad Pro。 Geekbench 记录显示，该平板搭载高通 SM</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://www.ithome.com/1/019/100.htm" target="_blank" rel="noopener">摩尔线程 2026 年前三季度归母净利润 3769.73 万元，营收 32.89 亿元同比增长 319.15%</a></h3>
+      
+      <p>IT之家 10 月 28 日消息，摩尔线程今日发布 2026 年前三季度（2026 年 1 月～2026 年 9 月）及三季度（2026 年 7 月～2026 年 9 月）报告： 2026 年前三季度 营业总收入 ：32.89 亿元，同比增</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://www.ithome.com/1/019/099.htm" target="_blank" rel="noopener">Liquid AI 发布 LFM3 模型家族，首批多款均基于 LFM3-1.7B-Base</a></h3>
+      
+      <p>IT之家 10 月 28 日消息，人工智能实验室 Liquid AI 当地时间 27 日发布了 LFM3 模型家族。其基于全新的三混合层架构，在 22T 词元上预训练而成， 在保持高效的同时具备更为出色的表现 。 LFM3 的首批产品包括 </p>
+    </article>
+    </section>
+    <section class="column-block">
+      <h2 class="column-title">麻瓜生活工艺</h2>
+      <p class="column-sub">—— 少数派 特约供稿 ——</p>
+      
+    <article class="story">
+      
+      <h3><a href="https://sspai.com/post/116990" target="_blank" rel="noopener">断舍离只是起点：打造能长期经营的实用主义衣柜</a></h3>
+      
+      <p>只扔不买是没有用的，穿衣服时不多费心神才是目的。 查看全文</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://sspai.com/post/115533" target="_blank" rel="noopener">怀旧手记｜坚果 Pro2 与 R1：当「理想」和「现实」碰撞会发生什么？</a></h3>
+      
+      <p>短短几年，罗永浩和锤子科技在国产手机的红海中留下了浓墨重彩的一笔。 查看全文</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://sspai.com/post/117684" target="_blank" rel="noopener">派早报：Apple 发布 M6 版 iMac 和 MacBook Pro 等</a></h3>
+      
+      <p>小米发布 REDMI K100 等新品，广电总局发布有线电视与 IPTV 运营服务新规等。 查看全文</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://sspai.com/post/117633" target="_blank" rel="noopener">社区速递 163 | 金豪 59 调整版钢笔与九月派友剁手清单</a></h3>
+      
+      <p>除了首页时间流和侧栏的精选展位，少数派Matrix社区还有很多优秀内容因条件所限无法得到有效曝光，因此我们决定重启Matrix周报，并在此基础上添加更多社区内容、作者投稿新玩意呈现给大家。上周社区速递 ... 查看全文</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://sspai.com/post/117557" target="_blank" rel="noopener">Apple Sports：不看新闻、不聊球，只看我关心的比赛</a></h3>
+      
+      <p>作为一个从小看CCTV-5体育频道下饭的「体育迷」，在互联网时代我一般都看新浪门户网站的体育板块来获取最新的体育资讯，在智能手机逐渐普及后，百度贴吧、虎扑、懂球帝等平台又是我获取体育资讯以及和网友们吹 ... 查看全文</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://sspai.com/post/115855" target="_blank" rel="noopener">一日一技｜NAS 作为 UPS 总控，实现局域网多设备断电自动关机</a></h3>
+      
+      <p>借助 NUT 网络 UPS 协议，我们只需要一台 UPS，就可以驱动局域网中多台设备协同断电保护。 查看全文</p>
+    </article>
+    </section>
+    <section class="column-block">
+      <h2 class="column-title">奇闻异事司</h2>
+      <p class="column-sub">—— Solidot · B站热搜 特约供稿 ——</p>
+      
+    <article class="story">
+      
+      <h3><a href="https://www.solidot.org/story?sid=85731" target="_blank" rel="noopener">尼安德特人发生了什么？</a></h3>
+      
+      <p>在人类演化史的大部分时间里，地球同时存在多个人种。以过去 10 万年为例，尼安德特人曾活跃在欧洲和西亚，丹尼索瓦人生活在亚洲，形似霍比特人的弗洛勒斯人（Homo floresiensis）居住在印尼的弗洛勒斯岛，爪哇岛上最后的直立人刚刚灭绝</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://www.solidot.org/story?sid=85730" target="_blank" rel="noopener">Swift 天文台预计于 11 月 2 日重返大气层</a></h3>
+      
+      <p>拯救失败的 NASA Neil Gehrels Swift 天文台正在坠落，预计于 11 月 2 日重返大气层。10 月 20 日，轨道高度 275 公里的 Swift 天文台无法再应对高层大气日益增强的阻力，它进入了安全模式。运营该天文台</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://www.solidot.org/story?sid=85729" target="_blank" rel="noopener">字节跳动旗下应用使用率超过竞争对手</a></h3>
+      
+      <p>根据野村证券的数据，今年 7 月在中国移动互联网使用时长排名前 50 的应用中，抖音首次超过微信，占总时长的 19.4%，微信占 18.8%；整个字节系的时长份额达 40.9%，腾讯系占 28.6%。字节旗下红果免费短剧的日活跃用户达到 1</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://www.solidot.org/story?sid=85728" target="_blank" rel="noopener">2025 年二氧化碳浓度创新高</a></h3>
+      
+      <p>世界气象组织周二表示，2025 年因燃烧化石燃料导致的大气中二氧化碳及其他主要温室气体的浓度达到创纪录高位，这将导致全球变暖趋势进一步固化。2025 年全球二氧化碳平均浓度为百万分之426.8（ppm），相当于 1750 年工业化前基准值的</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://www.solidot.org/story?sid=85727" target="_blank" rel="noopener">维基百科如何清理 AI 生成文本</a></h3>
+      
+      <p>2023 年维基百科志愿者发起了 WikiProject AI Cleanup 项目，旨在清理 AI 生成文本。当时的 AI 文本还很容易识别。项目创始成员 Ellia Lebleu 指出，当时的 AI 文本频繁使用奇怪短语如 stands</p>
+    </article>
+    <article class="story">
+      
+      <h3><a href="https://www.solidot.org/story?sid=85726" target="_blank" rel="noopener">数据中心搅动世界</a></h3>
+      
+      <p>很多人几年前可能还不知道什么是数据中心，它是现代互联网服务的引擎，也是今天 AI 热的核心。但数据中心数量的快速增长、巨大的电力消耗，以及环境影响，正在全球引发公众的抵制。根据 Data Center Map 的数据，目前全世界有约 12,</p>
+    </article>
+    </section></div>
+         </div>
+
+    <footer class="footer">
+      <p class="owl">本刊由猫头鹰邮递自动系统（GitHub Actions）每小时投递 · 印刷于 2026年10月28日</p>
+      <p>编者按：魔法世界即 AI 世界 · 本报刊登的一切魔法事件均以麻瓜新闻为底稿 · 拒绝丽塔·斯基特式谣言</p>
+    </footer>
+  </main>
+</body>
+</html>
