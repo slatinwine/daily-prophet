@@ -24,3 +24,7 @@
 - `.github/workflows/rebuild.yml`：GitHub Actions 每小时自动重建并提交，Pages 随之更新
 
 麻瓜免费订阅。
+
+## 关注公众号
+
+![公众号二维码](qrcode.jpg)
